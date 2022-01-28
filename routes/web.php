@@ -18,3 +18,21 @@ $router->get(
         'as'   => 'main-home'
     ]
 );
+
+$router->get(
+    '/categories/all',
+    [
+        'uses' => 'CategoryController@all',
+        'as'   => 'category-all'
+    ]
+);
+// ===========================================================
+
+// BONUS
+// $router->get(
+//     '/kaamelott',
+//     [
+//         'uses' => 'MainController@kaamelott',
+//         'as'   => 'main-kaamelott'
+//     ]
+// );
