@@ -9,7 +9,7 @@
 |created_at|TIMESTAMP|NOT NULL, DEFAULT CURRENT_TIMESTAMP|creation date of the status|
 |updated_at|TIMESTAMP| NULL, DEFAULT CURRENT_TIMESTAMP|updation date of the status|
 
-## Categories (`categorys`)
+## Categories (`categories`)
 
 |Champ|Type|Spécificités|Description|
 |-|-|-|-|
