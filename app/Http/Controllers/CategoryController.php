@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
+
 class CategoryController extends CoreController
 {
     /**
@@ -16,36 +18,9 @@ class CategoryController extends CoreController
 
     public function all()
     {
-
-        $categories = [
-            [
-              'id' => 1,
-              'name' => 'Chemin vers O\'clock',
-              'status' => 1
-            ],
-            [
-              'id' => 2,
-              'name' => 'Courses',
-              'status' => 1
-            ],
-            [
-              'id' => 3,
-              'name' => 'O\'clock',
-              'status' => 1
-            ],
-            [
-              'id' => 4,
-              'name' => 'Titre Professionnel',
-              'status' => 1
-            ],
-            [
-              'id' => 5,
-              'name' => 'Concevoir de bon jeux web',
-              'status' => 1
-            ],
-          ];
-
-        return $categories;
+      // récupération des categories en BDD
+      $categories = Categories::all();
+      return $categories;
     }
 
     //

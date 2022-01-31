@@ -20,7 +20,7 @@ $router->get(
 );
 
 $router->get(
-    '/categories/all',
+    '/categories',
     [
         'uses' => 'CategoryController@all',
         'as'   => 'category-all'
