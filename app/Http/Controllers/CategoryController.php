@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class CategoryController extends CoreController
 {
@@ -22,108 +23,92 @@ class CategoryController extends CoreController
     {
         // récupération des categories en BDD
         $categories = Category::all();
-        return response()->json($categories, 200);
+        return $categories;
     }
 
     // STEP épisode 5 utilisation du model Categories pour écupérer une catégorie grace à son id
     public function item($id)
     {
         // récupération des informations de la catégorie demandée. $categoryId est un paramètre ayant été passé dans l'url
-        $categorybyid = Category::find($id);
-        if ($categorybyid) {
-            return response()->json($categorybyid, 200);
+        $categoryById = Category::find($id);
+        if ($categoryById) {
+            return response()->json($categoryById, 200);
         } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            // TIPS retourner une réponse vide
+            // DOC response https://lumen.laravel.com/docs/5.2/responses
+            return new Response('', 404);
         }
     }
 
+    // DOC request https://lumen.laravel.com/docs/5.2/requests
     public function create(Request $request)
     {
-        $categories = new Category;
+        // récupération du "name" envoyé en post dans la requête
+        // équivalent à $name = filter_inpu(INPUT_POST, 'name')
+        $name = $request->input('name');
 
-        $categories->name = $request->input('name');
-        $categories->status = $request->input('status');
-        $categories->save();
+        // nous pouvons également faire comme ceci
+        $status =  $request->status;
 
-        if ($categories) {
-            return response()->json($categories, 201);
-        } else {
-            return response()->json(['error' => 'Internal Server Error'], 500);
-        }
-    }
+        // création d'une nouvelle category
+        // DOC insert https://laravel.com/docs/8.x/eloquent#inserts
+        $category = new Category();
+        $category->name = $name;
+        $category->status = $status;
 
-    //
-
-    /**
-         * HTTP Method : PUT
-         * URL : /categories/{id}
-         */
-    public function completeUpdate(Request $request, $id)
-    {
-        // Pour mettre à jour COMPLETEMENT une catégorie :
-        // 1 - On recup la catégorie à mettre à jour
-        $category = Category::find($id);
-        //verify all fields are filled and not empty
-        //if not execute the funtion
-        if ($request->filled(['name','status'])) {
-            $category->name = $request->input('name');
-            $category->status = $request->input('status');
-            $category->save();
-
-            if ($category) {
-                return response()->json($category, 201);
-            } else {
-                return response()->json(['error' => 'Internal Server Error'], 500);
-            }
-        }
-        //or send a bad request
-        else {
-            return response()->json(['error' => 'Bad request'], 400);
-        }
-    }
-
-    /**
-     * HTTP Method : PATCH
-     * URL : /categories/{id}
-     */
-    public function partialUpdate(Request $request, $id)
-    {
-        // Pour mettre à jour PARTIELLEMENT une catégorie :
-        // 1 - On recup la catégorie à mettre à jour
-        $category = Category::find($id);
-
-        if ($request->has('name')) {
-            $category->name = $request->input('name');
-        }
-        if ($request->has('status')) {
-            $category->status = $request->input('status');
-        }
-
+        // sauvegarde la nouvelle catégorie
         $category->save();
 
-        if ($category) {
-            return response()->json($category, 201);
-        } else {
-            return response()->json(['error' => 'Internal Server Error'], 500);
-        }
+        // renvoie du status code 201 : un nouvel élément a été créé (status "created")
+        return response()->json($category, 201);
     }
 
-    /**
-     * HTTP Method : DELETE
-     * URL : /categories/{id}
-     */
-    public function remove($id)
+
+    public function completeUpdate(Request $request, $id)
     {
-        // Pour supprimer une catégorie de la DB:
-        // 1 - On recup la catégorie à supprimer
+        // récupération du "name" envoyé en post dans la requête
+        // équivalent à $name = filter_inpu(INPUT_POST, 'name')
+        $name = $request->input('name');
+
+        // nous pouvons également faire comme ceci
+        $status =  $request->status;
+
+        // récupération de la catégorie via son id (l'id est passé dans l'url)
+        $category = Category::find($id);
+        $category->name = $name;
+        $category->status = $status;
+
+        // sauvegarde la nouvelle catégorie
+        $category->save();
+
+        // renvoie du status code 201 : un nouvel élément a été créé (status "created")
+        return response()->json($category, 201);
+    }
+
+    public function partialUpdate(Request $request, $id)
+    {
+        $name = $request->input('name');
+        $status =  $request->status;
+
         $category = Category::find($id);
 
-
-        $category->delete();
-        if ($category) {
-            return response()->json($category, 200);
-        } else {
-            return response()->json(['error' => 'Internal Server Error'], 500);
+        // on met à jour le name si une variable name a été envoyée dans la requête (et n'est pas vide)
+        if($name) {
+            $category->name = $name;
         }
+        // on met jour le status si une variable status été envoyée (et n'est pas vide)
+        if($status) {
+            $category->status = $status;
+        }
+        $category->save();
+        return response()->json($category, 201);
+    }
+
+    public function remove($id)
+    {
+        $category = Category::find($id);
+        $category->delete();
+        return new Response('', 200);
     }
 }
+

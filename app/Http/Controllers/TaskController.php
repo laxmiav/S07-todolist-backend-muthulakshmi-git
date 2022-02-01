@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
 
 class TaskController extends CoreController
 {
@@ -17,127 +19,116 @@ class TaskController extends CoreController
         //
     }
 
-    // STEP épisode 5 utilisation du model tasks pour écupérer toutes les tasks
+    // STEP épisode 5 utilisation du model Categories pour écupérer toutes les catégories
     public function all()
     {
-      // récupération des tasks en BDD
-      $tasks = Task::all();
-      return response()->json($tasks, 200);
-
+        // récupération des categories en BDD
+        $categories = Task::all();
+        return $categories;
     }
 
-    // STEP épisode 5 utilisation du model tasks pour écupérer une task grace à son id
-    public function item($id) {
-      // récupération des informations de la task demandée. $TaskId est un paramètre ayant été passé dans l'url
-      $taskById = Task::find($id);
-      if($taskById) {
-          return response()->json($taskById, 200);
+    // STEP épisode 5 utilisation du model Categories pour écupérer une catégorie grace à son id
+    public function item($id)
+    {
+        // récupération des informations de la catégorie demandée. $taskId est un paramètre ayant été passé dans l'url
+        $taskById = Task::find($id);
+        if ($taskById) {
+            return response()->json($taskById, 200);
+        } else {
+            // TIPS retourner une réponse vide
+            // DOC response https://lumen.laravel.com/docs/5.2/responses
+            return new Response('', 404);
         }
-      else{return response()->json(['error' => 'Unauthorized'], 500);}
     }
 
     public function create(Request $request)
     {
-        $tasks = new Task;
 
-        $tasks->title = $request->input('title');
-        $tasks->status = $request->input('status');
-        $tasks->completion = $request->input('completion');
-        $tasks->category_id = $request->input('categoryId');
-        $tasks->save();
+        // BONUS validation des data avec lumen
+        // DOC validation https://laravel.com/docs/8.x/validation
+        $validators = [];
+        // le titre d'une tache doit unique, ne doit pas être vide, ne doit pas dépasser 128 caractères de long
+        $validators['title'] = 'required|unique:tasks|max:128';
 
-        if ($tasks) {
-            return response()->json($tasks, 201);
-        } else {
-            return response()->json(['error' => 'Internal Server Error'], 500);
-        }
+        // le status doit avoir comme valeur soit 1, soit 2
+        //  $validators['status'] = 'required|integer|numeric|between:1,2'
+
+        $validators['status'] = Rule::in([1,2]);
+
+        // Validation des données envoyées (en post)
+        $this->validate($request, $validators);
+
+        // ===========================================================
+
+        $title = $request->input('title');
+        $status =  $request->status;
+        $completion =  $request->completion;
+        $categoryId =  $request->categoryId;
+
+        $task = new Task();
+        $task->title = $title;
+        $task->completion = $completion;
+        $task->status = $status;
+        $task->category_id = $categoryId;
+        $task->save();
+
+        return response()->json($task, 201);
     }
 
 
-    //
+    public function completeUpdate(Request $request, $id)
+    {
+        $title = $request->input('title');
+        $status =  $request->status;
+        $completion =  $request->completion;
+        $categoryId =  $request->categoryId;
 
+        $task = Task::find($id);
+        // si la tâche n'a pas été trouvée ; nous répondons avec une réponse vide avec le code 500 (serveur erreur)
+        if(!$task) {
+            return response('', 500);
+        }
+        $task->title = $title;
+        $task->completion = $completion;
+        $task->status = $status;
+        $task->category_id = $categoryId;
 
+        $task->save();
 
-    //
+        return response()->json($task, 201);
+    }
 
-    /**
-         * HTTP Method : PUT
-         * URL : /tasks/{id}
-         */
-        public function completeUpdate(Request $request, $id)
-        {
-            // Pour mettre à jour COMPLETEMENT une tache :
-            // 1 - On recup la tache à mettre à jour
-            $tasktoupdate = Task::find($id);
-            //verify all fields are filled and not empty
-            //if not execute the funtion
-            if ($request->filled(['title','status','completion', 'categoryId' ])) {
-                $tasktoupdate->title = $request->input('title');
-                $tasktoupdate->status = $request->input('status');
-                $tasktoupdate->completion = $request->input('completion');
-                $tasktoupdate->category_id = $request->input('categoryId');
-                $tasktoupdate->save();
+    public function partialUpdate(Request $request, $id)
+    {
+        $title = $request->input('title');
+        $status =  $request->status;
+        $completion =  $request->completion;
+        $categoryId =  $request->categoryId;
 
-                if ($tasktoupdate) {
-                    return response()->json($tasktoupdate, 201);
-                } else {
-                    return response()->json(['error' => 'Internal Server Error'], 500);
-                }
-            }
-            //or send a bad request
-            else {
-                return response()->json(['error' => 'Bad request'], 400);
-            }
+        $task = Task::find($id);
+        if($title) {
+            $task->title = $title;
+        }
+        if($request->has('completion')) {
+            $task->completion = $completion;
+        }
+        if($status) {
+            $task->status = $status;
         }
 
-        /**
-         * HTTP Method : PATCH
-         * URL : /tasks/{id}
-         */
-        public function partialUpdate(Request $request, $id)
-        {
-            // Pour mettre à jour PARTIELLEMENT une tache :
-            // 1 - On recup la tache à mettre à jour
-            $tasktoupdate = Task::find($id);
-
-            if ($request->has('title')) {
-                $tasktoupdate->title = $request->input('title');
-            }
-            if ($request->has('status')) {
-                $tasktoupdate->status = $request->input('status');
-            }
-            if ($request->has('completion')) {
-                $tasktoupdate->completion = $request->input('completion');
-            }
-            if ($request->has('categoryId')) {
-                $tasktoupdate->category_id = $request->input('categoryId');
-            }
-
-            $tasktoupdate->save();
-
-            if ($tasktoupdate) {
-                return response()->json($tasktoupdate, 201);
-            } else {
-                return response()->json(['error' => 'Internal Server Error'], 500);
-            }
+        if($categoryId) {
+            $task->category_id = $categoryId;
         }
 
-        /**
-         * HTTP Method : DELETE
-         * URL : /tasks/{id}
-         */
-        public function remove($id)
-        {
-            // Pour supprimer une tache de la DB:
-            // 1 - On recup la tache à supprimer
-            $tasktodelete = Task::find($id);
+        $task->save();
+        return response()->json($task, 201);
+    }
 
-
-            $tasktodelete->delete();
-            if ($tasktodelete) {
-                return response()->json($tasktodelete, 200);
-            } else {
-                return response()->json(['error' => 'Internal Server Error'], 500);
-            }
-        }
+    public function remove($id)
+    {
+        $task = Task::find($id);
+        $task->delete();
+        return new Response('', 200);
+    }
 }
+
