@@ -22,16 +22,17 @@ class TaskController extends CoreController
     // STEP épisode 5 utilisation du model Categories pour écupérer toutes les catégories
     public function all()
     {
-        // récupération des categories en BDD
-        $categories = Task::all();
-        return $categories;
+        // récupération des tâches en BDD
+        // avec en plus les catégories associées (category correspond au nom de la méthode dans le model Task)
+        $tasks = Task::all()->load('category');
+        return $tasks;
     }
 
     // STEP épisode 5 utilisation du model Categories pour écupérer une catégorie grace à son id
     public function item($id)
     {
-        // récupération des informations de la catégorie demandée. $taskId est un paramètre ayant été passé dans l'url
-        $taskById = Task::find($id);
+        // récupération des informations de la tâche demandée. $taskId est un paramètre ayant été passé dans l'url
+        $taskById = Task::find($id)->load('category');
         if ($taskById) {
             return response()->json($taskById, 200);
         } else {
@@ -78,6 +79,22 @@ class TaskController extends CoreController
 
     public function completeUpdate(Request $request, $id)
     {
+
+        // BONUS validation des data avec lumen
+        // DOC validation https://laravel.com/docs/8.x/validation
+        $validators = [];
+        // le titre d'une tache doit unique, ne doit pas être vide, ne doit pas dépasser 128 caractères de long
+        $validators['title'] = 'required|unique:tasks|max:128';
+
+        // le status doit avoir comme valeur soit 1, soit 2
+        //  $validators['status'] = 'required|integer|numeric|between:1,2'
+
+        $validators['status'] = Rule::in([1,2]);
+        $validators['completion'] = 'min:0|max:100';
+
+        $this->validate($request, $validators);
+
+
         $title = $request->input('title');
         $status =  $request->status;
         $completion =  $request->completion;
@@ -102,7 +119,7 @@ class TaskController extends CoreController
     {
         $title = $request->input('title');
         $status =  $request->status;
-        $completion =  $request->completion;
+        //$completion =  $request->input('completion');
         $categoryId =  $request->categoryId;
 
         $task = Task::find($id);
@@ -110,7 +127,7 @@ class TaskController extends CoreController
             $task->title = $title;
         }
         if($request->has('completion')) {
-            $task->completion = $completion;
+            $task->completion = $request->input('completion');
         }
         if($status) {
             $task->status = $status;

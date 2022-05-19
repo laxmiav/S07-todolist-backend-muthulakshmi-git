@@ -3,11 +3,11 @@
 ## MCD
 
 ```sql
-STATUS: id, name, created at, updated at
+STATUS: code_status, name, 
 currently in, 11 TASKS, 0N STATUS
-TASKS: id, title, completion, created at, updated at
+TASK: code_task, title, completion, 
 belongs to, 01 TASKS, 01 CATEGORIES
-CATEGORIES: id, name, status, created at, updated at
+CATEGORY: code_category, name, status, 
 
 
 ```

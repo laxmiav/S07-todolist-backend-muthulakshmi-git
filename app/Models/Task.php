@@ -1,16 +1,21 @@
 <?php
 namespace App\Models;
 
-
-// STEP épisode 5 Eloquent l'équivalent du CoreModel
 use Illuminate\Database\Eloquent\Model;
-
 
 class Task extends Model
 {
-    // Déclaration du nom de la table sur laquelle la classe tasks va travailler
-    // https://laravel.com/docs/8.x/eloquent#table-names
-    // si le nom de la classe est le même que le nom de la table ; il n'y a pas besoin de spécifier le nom de la table
-    protected $table = 'tasks';
+    // TIPS "magie" lumen peut deviner le nom de la table au pluriel même si le nom de la classe est au singulier
+    // protected $table = 'tasks';
 
+    // STEP episode 6 ; une tâche "a une catégorie" (appartient à une catégorie) (relation 1,1)
+
+    public function category()
+    {
+        return $this->belongsTo(
+            Category::class, // la classe a utiliser pour récupérer l 'entité associée
+            'category_id',  // le nom de la foreign key dans la bdd
+            'id', // la clé primaire à utiliser dans la table category (ici nous ciblons categories.id)
+        );
+    }
 }

@@ -22,7 +22,7 @@ class CategoryController extends CoreController
     public function all()
     {
         // récupération des categories en BDD
-        $categories = Category::all();
+        $categories = Category::all()->load('tasks');
         return $categories;
     }
 
@@ -30,7 +30,7 @@ class CategoryController extends CoreController
     public function item($id)
     {
         // récupération des informations de la catégorie demandée. $categoryId est un paramètre ayant été passé dans l'url
-        $categoryById = Category::find($id);
+        $categoryById = Category::find($id)->load('tasks');;
         if ($categoryById) {
             return response()->json($categoryById, 200);
         } else {

@@ -12,4 +12,13 @@ class Category extends Model
     // https://laravel.com/docs/8.x/eloquent#table-names
     // si le nom de la classe est le même que le nom de la table ; il n'y a pas besoin de spécifier le nom de la table
     protected $table = 'categories';
+
+
+    public function tasks()
+    {
+        return $this->hasMany(
+            Task::class, // la catégorie a "plusieurs Tâches",
+            'category_id' // il faut indiquer le nom de la foreign key (tasks.category_id)
+        );
+    }
 }

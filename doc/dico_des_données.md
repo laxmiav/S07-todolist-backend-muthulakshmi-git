@@ -9,7 +9,7 @@
 |created_at|TIMESTAMP|NOT NULL, DEFAULT CURRENT_TIMESTAMP|creation date of the status|
 |updated_at|TIMESTAMP| NULL, DEFAULT CURRENT_TIMESTAMP|updation date of the status|
 
-## Categories (`categories`)
+## Category (`category`)
 
 |Champ|Type|Spécificités|Description|
 |-|-|-|-|
@@ -19,7 +19,7 @@
 |created_at|TIMESTAMP|NOT NULL, DEFAULT CURRENT_TIMESTAMP|creation date of the category|
 |updated_at|TIMESTAMP|NULL, DEFAULT CURRENT_TIMESTAMP|updation date of the category|
 
-## Tasks (`tasks`)
+## Task (`task`)
 
 |Champ|Type|Spécificités|Description|
 |-|-|-|-|
